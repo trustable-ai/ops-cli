@@ -47,10 +47,13 @@ header:
     - DISCLAIMER
     - LICENSE
     - NOTICE
+    - '_patches/**'
 
 dependency:
   files:
     - go.mod
+    - package.json
+
   licenses:
     - name: github.com/xi2/xz
       version: v0.0.0-20171230120015-48954b6210f8
