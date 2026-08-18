@@ -27,8 +27,7 @@ echo @'
 
 OS="$(uname -s)"
 ARCH="$(uname -m)"
-CMDIN="ops"
-CMDOUT="ops2"
+CMD="ops"
 
 case "$OS-$ARCH" in
 (Linux-x86_64)
@@ -54,8 +53,7 @@ case "$OS-$ARCH" in
 (MINGW64_NT-*)
    SUFFIX="_windows_amd64" ;
    EXT=".zip"
-   CMDIN="ops.exe"
-   CMDOUT="ops2.exe"
+   CMD="ops.exe"
 ;;
 (*)
    echo "unknown system - exiting"
@@ -83,14 +81,15 @@ fi
 
 if test "$EXT" = ".zip"
 then
-   unzip -o -d /tmp "/tmp/$FILE" "$CMDIN"
+   unzip -o -d /tmp "/tmp/$FILE" "$CMD"
 else
-   tar xzvf "/tmp/$FILE" -C /tmp "$CMDIN"
+   tar xzvf "/tmp/$FILE" -C /tmp "$CMD"
 fi
-mv "/tmp/$CMDIN" ~/.local/bin/"$CMDOUT"
+mv "/tmp/$CMD" ~/.local/bin/"$CMD"
+chmod +x ~/.local/bin/"$CMD"
 rm -f "/tmp/$FILE"
 
-if ! test -e ~/.local/bin/"$CMDOUT"
+if ! test -e ~/.local/bin/"$CMD"
 then echo "cannot install ops - download and unpack it in a folder in the path from here:"
      echo "$URL"
      exit 1
@@ -126,8 +125,7 @@ $InWindows = [System.Environment]::OSVersion.Platform -eq 'Win32NT'
 
 $SUFFIX = "_windows_amd64"
 $EXT = ".zip"
-$CMDIN = "ops.exe"
-$CMDOUT = "ops2.exe"
+$CMD = "ops.exe"
 
 if (-not $InWindows) {
    Write-Host "This script is only for Windows - exiting"
@@ -153,12 +151,12 @@ Invoke-WebRequest -Uri $URL -OutFile "$TmpFile"
 $TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "openserverless-cli-$VERSION"
 Remove-Item -Path "$TmpDir" -Recurse -Force -ErrorAction SilentlyContinue
 Expand-Archive -Path "$TmpFile" -DestinationPath "$TmpDir" -Force
-Move-Item -Path (Join-Path "$TmpDir" $CMDIN) -Destination (Join-Path $BinPath $CMDOUT) -Force
+Move-Item -Path (Join-Path "$TmpDir" $CMD) -Destination (Join-Path $BinPath $CMD) -Force
 Remove-Item -Path "$TmpDir" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -Path "$TmpFile" -Force -ErrorAction SilentlyContinue
 
 # Verify installation
-if (-not (Test-Path "$BinPath/$CMDOUT")) {
+if (-not (Test-Path "$BinPath/$CMD")) {
    Write-Host "Cannot install ops - download and unpack it in a folder in the path from here:"
    Write-Host $URL
    exit 1
