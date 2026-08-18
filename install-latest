@@ -27,7 +27,7 @@ echo @'
 
 OS="$(uname -s)"
 ARCH="$(uname -m)"
-CMD="ops"
+CMD="ops2"
 
 case "$OS-$ARCH" in
 (Linux-x86_64)
@@ -123,7 +123,7 @@ $InWindows = [System.Environment]::OSVersion.Platform -eq 'Win32NT'
 
 $SUFFIX = "_windows_amd64"
 $EXT = ".zip"
-$CMD = "ops.exe"
+$CMD = "ops2.exe"
 
 if (-not $InWindows) {
    Write-Host "This script is only for Windows - exiting"
