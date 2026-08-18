@@ -27,7 +27,8 @@ echo @'
 
 OS="$(uname -s)"
 ARCH="$(uname -m)"
-CMD="ops2"
+CMDIN="ops"
+CMDOUT="ops2"
 
 case "$OS-$ARCH" in
 (Linux-x86_64)
@@ -53,7 +54,8 @@ case "$OS-$ARCH" in
 (MINGW64_NT-*)
    SUFFIX="_windows_amd64" ;
    EXT=".zip"
-   CMD="ops.exe"
+   CMDIN="ops.exe"
+   CMDOUT="ops2.exe"
 ;;
 (*)
    echo "unknown system - exiting"
@@ -81,13 +83,14 @@ fi
 
 if test "$EXT" = ".zip"
 then
-   unzip -o -d ~/.local/bin "/tmp/$FILE" "$CMD"
+   unzip -o -d /tmp "/tmp/$FILE" "$CMDIN"
 else
-   tar xzvf "/tmp/$FILE" -C ~/.local/bin "$CMD"
+   tar xzvf "/tmp/$FILE" -C /tmp "$CMDIN"
 fi
+mv "/tmp/$CMDIN" ~/.local/bin/"$CMDOUT"
 rm -f "/tmp/$FILE"
 
-if ! test -e  ~/.local/bin/"$CMD"
+if ! test -e ~/.local/bin/"$CMDOUT"
 then echo "cannot install ops - download and unpack it in a folder in the path from here:"
      echo "$URL"
      exit 1
@@ -123,7 +126,8 @@ $InWindows = [System.Environment]::OSVersion.Platform -eq 'Win32NT'
 
 $SUFFIX = "_windows_amd64"
 $EXT = ".zip"
-$CMD = "ops2.exe"
+$CMDIN = "ops.exe"
+$CMDOUT = "ops2.exe"
 
 if (-not $InWindows) {
    Write-Host "This script is only for Windows - exiting"
@@ -145,12 +149,16 @@ if (-not (Test-Path -Path $BinPath)) {
 $TmpFile = Join-Path ([System.IO.Path]::GetTempPath()) $FILE
 Invoke-WebRequest -Uri $URL -OutFile "$TmpFile"
 
-# Unpack the file based on its extension
-Expand-Archive -Path "$TmpFile" -DestinationPath $BinPath -Force
+# Unpack to a temp folder, then install under the target name
+$TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "openserverless-cli-$VERSION"
+Remove-Item -Path "$TmpDir" -Recurse -Force -ErrorAction SilentlyContinue
+Expand-Archive -Path "$TmpFile" -DestinationPath "$TmpDir" -Force
+Move-Item -Path (Join-Path "$TmpDir" $CMDIN) -Destination (Join-Path $BinPath $CMDOUT) -Force
+Remove-Item -Path "$TmpDir" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -Path "$TmpFile" -Force -ErrorAction SilentlyContinue
 
 # Verify installation
-if (-not (Test-Path "$BinPath/$CMD")) {
+if (-not (Test-Path "$BinPath/$CMDOUT")) {
    Write-Host "Cannot install ops - download and unpack it in a folder in the path from here:"
    Write-Host $URL
    exit 1
