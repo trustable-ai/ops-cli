@@ -81,6 +81,10 @@ func ConfigTool(configMap ConfigMap) error {
 		return nil
 	}
 
+	if input[0] == "sso" {
+		return ConfigSSOTool(configMap, input[1:])
+	}
+
 	var cErr error
 	noAssigns := inputWithoutAssigns(input)
 
@@ -158,7 +162,7 @@ func (kv *keyValues) Set(value string) error {
 	key := parts[0]
 	val := parts[1]
 
-	if key == "" || val == "" {
+	if key == "" {
 		return fmt.Errorf("invalid key-value pair: %q", value)
 	}
 

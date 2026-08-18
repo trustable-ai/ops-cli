@@ -79,6 +79,9 @@ func TestMain(m *testing.M) {
 	workDir, _ = filepath.Abs(wd)
 	homeDir, _ = homedir.Dir()
 	taskDryRun = true
+	os.Unsetenv("OPS_REPO")
+	os.Unsetenv("OPS_BRANCH")
+	os.Unsetenv("OPS_ROOT")
 	os.Exit(m.Run())
 }
 
@@ -128,4 +131,36 @@ func TestParseInvokeArgs(t *testing.T) {
 		output4 := parseInvokeArgs(input4)
 		require.Equal(t, expected4, output4)
 	})
+}
+
+func TestWskNamespaceSet(t *testing.T) {
+	wskProps := filepath.Join(t.TempDir(), ".wskprops")
+	require.NoError(t, os.WriteFile(wskProps, []byte("AUTH=uuid:key\nAPIHOST=http://localhost:5000\n"), 0600))
+	t.Setenv("WSK_CONFIG_FILE", wskProps)
+
+	require.NoError(t, wskNamespaceSet("developerlab8e8a9915"))
+	content, err := os.ReadFile(wskProps)
+	require.NoError(t, err)
+	require.Equal(t, "AUTH=uuid:key\nAPIHOST=http://localhost:5000\nNAMESPACE=developerlab8e8a9915\n", string(content))
+
+	require.NoError(t, wskNamespaceSet("devel"))
+	content, err = os.ReadFile(wskProps)
+	require.NoError(t, err)
+	require.Equal(t, "AUTH=uuid:key\nAPIHOST=http://localhost:5000\nNAMESPACE=devel\n", string(content))
+}
+
+func TestPlainEmbeddedToolAlias(t *testing.T) {
+	require.False(t, isPlainEmbeddedToolAlias("config"))
+	require.False(t, isPlainEmbeddedToolAlias("admin"))
+	require.False(t, isPlainEmbeddedToolAlias("ide"))
+	require.False(t, isPlainEmbeddedToolAlias("login"))
+}
+
+func TestConfigValueForDebugRedactsSensitiveValues(t *testing.T) {
+	require.Equal(t, "<redacted>", configValueForDebug("AUTH", "uuid:key"))
+	require.Equal(t, "<redacted>", configValueForDebug("POSTGRES_PASSWORD", "secret"))
+	require.Equal(t, "<redacted>", configValueForDebug("S3_ACCESS_KEY", "access"))
+	require.Equal(t, "<redacted>", configValueForDebug("SERVICE_TOKEN", "token"))
+	require.Equal(t, "http://localhost:8080", configValueForDebug("OIDC_ISSUER_URL", "http://localhost:8080"))
+	require.Equal(t, "", configValueForDebug("AUTH", ""))
 }

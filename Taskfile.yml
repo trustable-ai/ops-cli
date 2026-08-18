@@ -18,7 +18,7 @@
 version: "3"
 
 vars:
-  BASEVER: "0.1.0"
+  BASEVER: "0.9.1"
   VARIANT: "dev"
   VERSION:
     sh: git describe --tags --abbrev=0 2>/dev/null || git rev-parse --short HEAD
@@ -38,7 +38,7 @@ tasks:
     - git add version.txt branch.txt
     - git commit -m "$(cat version.txt)" || true
     - git tag -f "v$(cat version.txt)"
- 
+
 
   trigger:
     desc: create tag and push triggering a build
@@ -59,8 +59,9 @@ tasks:
       - echo building {{.VERSION}}
       - go build  {{.DEBUG}} ./cmd/ops/
     sources:
-      - "*.go"
-      - "*/*.go"
+      - "**/*.go"
+      - go.mod
+      - go.sum
       - version.txt
       - branch.txt
     generates:
@@ -84,7 +85,7 @@ tasks:
       - cp -v ops $HOME/.local/bin
       - |
         if ! which ops | grep $HOME/.local/bin
-        then 
+        then
           echo "$HOME/.local/bin is not in the path - adding it"
           echo 'export PATH="$HOME/.local/bin:$PATH"' >>$HOME/.bashrc
           echo 'export PATH="$HOME/.local/bin:$PATH"' >>$HOME/.zshrc
@@ -107,20 +108,24 @@ tasks:
     cmds:
       - rm -Rf ~/.ops
       - go clean -testcache -cache
-      - go test -count=1 {{.F}} github.com/apache/openserverless-cli
-      - go test -count=1 {{.F}} github.com/apache/openserverless-cli/config
-      - go test -count=1 {{.F}} github.com/apache/openserverless-cli/tools  
-      - go test github.com/apache/openserverless-cli/auth
-      
+      - go test -count=1 {{.F}} ./...
+
 
   bats:
     dir: tests
+    vars:
+      BATS_CORE_VERSION: v1.13.0
+      BATS_SUPPORT_VERSION: v0.3.0
+      BATS_ASSERT_VERSION: v2.2.4
     cmds:
-    - git clone https://github.com/bats-core/bats-core bats
-    - git clone https://github.com/bats-core/bats-support test_helper/bats-support
-    - git clone https://github.com/bats-core/bats-assert test_helper/bats-assert
+    - rm -Rf bats test_helper/bats-support test_helper/bats-assert
+    - git clone --branch {{.BATS_CORE_VERSION}} --depth 1 https://github.com/bats-core/bats-core bats
+    - git clone --branch {{.BATS_SUPPORT_VERSION}} --depth 1 https://github.com/bats-core/bats-support test_helper/bats-support
+    - git clone --branch {{.BATS_ASSERT_VERSION}} --depth 1 https://github.com/bats-core/bats-assert test_helper/bats-assert
     status:
-    - test -d bats
+    - test "$(git -C bats describe --tags --exact-match 2>/dev/null)" = "{{.BATS_CORE_VERSION}}"
+    - test "$(git -C test_helper/bats-support describe --tags --exact-match 2>/dev/null)" = "{{.BATS_SUPPORT_VERSION}}"
+    - test "$(git -C test_helper/bats-assert describe --tags --exact-match 2>/dev/null)" = "{{.BATS_ASSERT_VERSION}}"
 
   itest:
     aliases: [it]
@@ -130,6 +135,11 @@ tasks:
       - task: bats
       - rm -Rf ~/.ops/olaris
       - |
+        unset DEBUG
+        unset TRACE
+        unset OPS_BRANCH
+        unset OPS_REPO
+        unset OPS_ROOT
         if test -z "{{.T}}"
         then bats/bin/bats {{.F}} .
         else bats/bin/bats {{.F}} {{.T}}.bats
@@ -147,4 +157,3 @@ tasks:
               python3 difftest.py
         else  python3 difftest.py {{.N}}
         fi
-
