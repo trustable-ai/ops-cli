@@ -47,6 +47,7 @@ header:
     - DISCLAIMER
     - LICENSE
     - NOTICE
+    - '_patches/**' 
 
 dependency:
   files:
