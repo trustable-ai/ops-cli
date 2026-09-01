@@ -97,8 +97,8 @@ It is the same process that you can trigger manually with the command `ops -upda
 
 ## Where `ops` download tasks from GitHub
 
-The repo to use is defined by the environment variable `OPS_REPO`, and defaults
-to `https://github.com/apache/openserverless-task`
+The repo to use is defined at build time and stored in sources in `repo.txt`. It can be overriden
+with the environment variable `OPS_REPO`.
 
 The branch to use is defined at build time. It is noramlly named as the base version of the CLI. It can be overriden
 with the enviroment variable `OPS_BRANCH`.
@@ -197,8 +197,8 @@ The following environment variables are always set and you **can override** them
 - `OPS_VERSION` can be defined to set ops's version value. It is useful to override version validations when updating
   tasks (and you know what you are doing). Current value is defined at build time and stored in sources in version.txt
 - `OPS_HOME` is the home dir, defaults to `~/.ops`
-- `OPS_REPO` is the github repo where `ops` downloads its tasks. If not defined, it defaults
-  to `https://github.com/apache/openserverless-task`.
+- `OPS_REPO` is the github repo where `ops` downloads its tasks. If not defined, it defaults to the value
+  defined at build time and stored in sources in `repo.txt` (normally `https://github.com/apache/openserverless-task`)
 - `OPS_BRANCH` is the branch where `ops` looks for its tasks. The branch to use is defined at build time and it is
   usually the base version (without the patch level). Check `branch.txt` for the current value
 - `OPS_ROOT` is the folder where `ops` looks for its tasks. If not defined, if will follow the algorithm described

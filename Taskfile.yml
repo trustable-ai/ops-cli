@@ -18,8 +18,8 @@
 version: "3"
 
 vars:
-  BASEVER: "0.9.1"
-  VARIANT: "dev"
+  BRANCH: "0.9.0"
+  VARIANT: "incubating"
   VERSION:
     sh: git describe --tags --abbrev=0 2>/dev/null || git rev-parse --short HEAD
   DEBUG: ""
@@ -32,11 +32,13 @@ tasks:
   tag:
     desc: tag the cli to generate the build
     cmds:
-    - git tag -d $(git tag)
-    - echo "{{.BASEVER}}-$(date +%y%m%d%H%M).{{.VARIANT}}" >version.txt
-    - echo "{{.BASEVER}}" >branch.txt
-    - git add version.txt branch.txt
-    - git commit -m "$(cat version.txt)" || true
+    - test -n "$OPS_REPO" || { echo "OPS_REPO env var undefined " ; exit 1; }
+    - echo "$OPS_REPO" >repo.txt
+    - git tag | xargs git tag -d
+    - echo "{{.BRANCH}}-$(date +%y%m%d%H%M).{{.VARIANT}}" >version.txt
+    - echo "{{.BRANCH}}" >branch.txt
+    #- git add version.txt branch.txt
+    #- git commit -m "$(cat version.txt)" || true
     - git tag -f "v$(cat version.txt)"
 
 

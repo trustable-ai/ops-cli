@@ -38,11 +38,11 @@ const DOCOPTS_MD = "docopts.md"
 const PREREQ = "prereq.yml"
 const CONFIGFILE = "config.json"
 
-// repo where download tasks
-const OPSREPO = "http://github.com/apache/openserverless-task"
-
 // branch where download tasks
 // defaults to test - will be changed in compilation
+
+//go:embed repo.txt
+var OpsRepo string
 
 //go:embed version.txt
 var OpsVersion string
@@ -92,7 +92,7 @@ func getOpsRoot() (string, error) {
 func getOpsRepo() string {
 	repo := os.Getenv("OPS_REPO")
 	if repo == "" {
-		repo = OPSREPO
+		repo = strings.TrimSpace(OpsRepo)
 	}
 	//nolint:errcheck
 	os.Setenv("OPS_REPO", repo)
