@@ -43,7 +43,7 @@ type LoginResult struct {
 const usage = `Usage:
 ops -login <apihost> [<user>]
 
-Login to an OpenServerless instance. If no user is specified, the default user "nuvolaris" is used.
+Login to an OpenServerless instance. If no user is specified, the default user "openserverless" is used.
 You can set the environment variables OPS_APIHOST and OPS_USER to avoid specifying them on the command line.
 You can set OPS_PASSWORD to avoid entering the password interactively.
 
@@ -51,8 +51,8 @@ Options:
   -h, --help   Show usage`
 
 const whiskLoginPath = "/api/v1/web/whisk-system/nuv/login"
-const defaultUser = "nuvolaris"
-const opsSecretServiceName = "nuvolaris"
+const defaultUser = "openserverless"
+const opsSecretServiceName = "openserverless"
 
 func LoginCmd() (*LoginResult, error) {
 
