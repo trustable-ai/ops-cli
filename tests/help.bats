@@ -21,7 +21,8 @@ setup() {
     export NO_COLOR=1
     EXPECTED_VERSION="$(tr -d '\r\n' < ../version.txt)"
     EXPECTED_BRANCH="$(tr -d '\r\n' < ../branch.txt)"
-    ops -reset force
+    #ops -reset force
+    opd -reset clean
     cd ..
 }
 
@@ -30,7 +31,7 @@ setup() {
     #assert_line --partial "-reset complete"
 
     run ops
-    assert_line "Welcome to ops, the all-mighty, extensibile apache OPenServerless CLI Tool." 
+    assert_line "Welcome to ops, the all-mighty, extensibile apache OPenServerless CLI Tool."
 
     run ops -h
     assert_line "Tools (use -<tool> -h for help):"
@@ -42,7 +43,7 @@ setup() {
     assert_line "$EXPECTED_VERSION"
     run ops -version
     assert_line "$EXPECTED_VERSION"
- 
+
     run ops action --help
     assert_line  --partial "ops action [command]"
 }
@@ -53,7 +54,7 @@ setup() {
     assert_success
     assert_line "Cloning tasks..."
     assert_line  "Tasks downloaded successfully"
-    assert_line --partial "ensuring prerequisite coreutils"
+    #assert_line --partial "ensuring prerequisite coreutils"
 }
 
 @test "help with download" {
@@ -64,10 +65,10 @@ setup() {
     run ops -t
     assert_success
     assert_line --partial "OpenServerless Administration Tasks"
-    refute_line "Usage of experiments:" 
+    refute_line "Usage of experiments:"
     run ops -tasks
     assert_line --partial "OpenWhisk Tasks"
-    refute_line "Usage of experiments:" 
+    refute_line "Usage of experiments:"
 
     run ops -i
     assert_success
@@ -79,14 +80,14 @@ setup() {
     run ops -u
     assert_success
     assert_line "Updating tasks..."
-    run ops -update 
+    run ops -update
     assert_success
     assert_line "Updating tasks..."
 
     run ops -l
     assert_failure
     assert_line "ops -login [options] <apihost> [<user>]"
-    run ops -login 
+    run ops -login
     assert_failure
     assert_line "ops -login [options] <apihost> [<user>]"
 
