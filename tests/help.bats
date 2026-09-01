@@ -22,7 +22,7 @@ setup() {
     EXPECTED_VERSION="$(tr -d '\r\n' < ../version.txt)"
     EXPECTED_BRANCH="$(tr -d '\r\n' < ../branch.txt)"
     #ops -reset force
-    opd -reset clean
+    ops -reset clean
     cd ..
 }
 

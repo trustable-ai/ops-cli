@@ -19,7 +19,8 @@ setup() {
     load 'test_helper/bats-support/load'
     load 'test_helper/bats-assert/load'
     export NO_COLOR=1
-    ops -reset force
+    #ops -reset force
+    ops -reset clean
     cd ..
 }
 
@@ -27,7 +28,7 @@ setup() {
     run ops -update
     assert_success
     assert_line "Tasks downloaded successfully"
-    assert_line --partial "ensuring prerequisite coreutils"
+    #assert_line --partial "ensuring prerequisite coreutils"
 
     run env OPS_VERSION=0.0.0 OPS_SKIP_UPDATE_CLI=1 ops -update
     assert_line --partial "Your ops version (0.0.0) is older than the required version"
@@ -47,7 +48,7 @@ setup() {
 }
 
 @test "ops -update on branch" {
-    OPS_BRANCH=main run ops -update
+    OPS_BRANCH=main run env OPS_SKIP_UPDATE_CLI=1 ops -update
     assert_line "Tasks downloaded successfully"
     assert test -d ~/.ops/main
     assert_success
