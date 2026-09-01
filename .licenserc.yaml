@@ -52,7 +52,6 @@ header:
 dependency:
   files:
     - go.mod
-    - package.json
 
   licenses:
     - name: github.com/xi2/xz

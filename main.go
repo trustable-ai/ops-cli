@@ -120,6 +120,7 @@ func banner() {
 	fmt.Println("-c | -config  manage config   (openserverless server configuration)")
 	fmt.Println("-l | -login   access system   (required to access openserverless)")
 	fmt.Println("-reset        clean downloads (if nothing works, try this)")
+	fmt.Println("-reset clean  clean tasks     (remove tasks and tmp, keep prerequisites)")
 	fmt.Println()
 }
 
@@ -154,6 +155,20 @@ func executeToolsNoDownloadAndExit(args []string) {
 		}
 		if !info.IsDir() {
 			log.Fatal("cannot reset, not a directory", home)
+		}
+		// "clean" removes only the current branch tasks and the tmp folder,
+		// keeping the downloaded prerequisites in place
+		if len(args) > 2 && args[2] == "clean" {
+			branchDir := joinpath(home, getOpsBranch())
+			tmpDir := joinpath(home, "tmp")
+			for _, dir := range []string{branchDir, tmpDir} {
+				if err := os.RemoveAll(dir); err != nil {
+					log.Fatal("ops reset error:", err.Error())
+				}
+				fmt.Printf("removed %s\n", dir)
+			}
+			fmt.Println("ops -reset clean complete - execute ops -update to reload")
+			os.Exit(0)
 		}
 		if len(args) == 2 || (len(args) > 2 && args[2] != "force") {
 			if !confirm(fmt.Sprintf("I am going to remove the subfolder %s (use force to skip this question).\nAre you sure [yes/no]:", home)) {
@@ -344,7 +359,7 @@ func Main() {
 	os.Setenv("OPS_TOOLS", strings.Join(tools.MergeToolsList(mainTools), " "))
 
 	// CLI: ops -v | --version | -h | --help | -reset
-	// preliminanre processing not requiring to  downloading anything
+	// preliminar processing not requiring to  downloading anything
 	executeToolsNoDownloadAndExit(os.Args)
 
 	// in case args[1] is a wsk wrapper command invoke it and exit

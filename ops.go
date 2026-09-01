@@ -171,7 +171,7 @@ func readDocOpts() (string, string) {
 		text := readfile(DOCOPTS_MD)
 
 		// parse embedded variables
-		restrictions := &parse.Restrictions{false, false, true}
+		restrictions := &parse.Restrictions{NoUnset: false, NoEmpty: false, NoDigit: true}
 		result, err := (&parse.Parser{Name: "string", Env: os.Environ(), Restrict: restrictions, Mode: parse.AllErrors}).Parse(text)
 		if err != nil {
 			return "", err.Error()
@@ -191,7 +191,7 @@ func readDocOpts() (string, string) {
 
 	if exists(".", DOCOPTS_TXT) {
 		text := readfile(DOCOPTS_TXT)
-		restrictions := &parse.Restrictions{false, false, true}
+		restrictions := &parse.Restrictions{NoUnset: false, NoEmpty: false, NoDigit: true}
 		help, err := (&parse.Parser{Name: "string", Env: os.Environ(), Restrict: restrictions, Mode: parse.AllErrors}).Parse(text)
 		if err != nil {
 			help = err.Error()
